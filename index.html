@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>まちづくりアンケート結果</title>
+    <style>
+        body { font-family: sans-serif; margin: 2em; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+        h1 { text-align: center; }
+    </style>
+</head>
+<body>
+
+    <h1>まちづくりアンケート結果</h1>
+    <div id="results-container">
+        <p>結果を読み込んでいます...</p>
+    </div>
+
+    <script>
+        const JSON_URL = './data/survey_results.json';
+
+        async function fetchAndDisplayResults() {
+            try {
+                const response = await fetch(`${JSON_URL}?t=${new Date().getTime()}`); // キャッシュ対策
+                const data = await response.json();
+
+                const container = document.getElementById('results-container');
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p>まだ回答がありません。</p>';
+                    return;
+                }
+
+                // テーブルを作成
+                let table = '<table><thead><tr>';
+                const headers = Object.keys(data[0]);
+                headers.forEach(header => {
+                    table += `<th>${header}</th>`;
+                });
+                table += '</tr></thead><tbody>';
+
+                data.forEach(row => {
+                    table += '<tr>';
+                    headers.forEach(header => {
+                        table += `<td>${row[header] || ''}</td>`;
+                    });
+                    table += '</tr>';
+                });
+
+                table += '</tbody></table>';
+                container.innerHTML = table;
+
+            } catch (error) {
+                console.error('結果の読み込みに失敗しました:', error);
+                document.getElementById('results-container').innerHTML = '<p>結果の読み込みに失敗しました。</p>';
+            }
+        }
+
+        // ページ読み込み時に実行
+        fetchAndDisplayResults();
+    </script>
+
+</body>
+</html>
